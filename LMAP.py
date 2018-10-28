@@ -1,4 +1,4 @@
-import socket, pickle
+import socket
 import sys
 from operator import xor
 import random
@@ -13,8 +13,10 @@ sock.bind(server_address)
 print >>sys.stderr, 'starting up on %s port %s' % sock.getsockname()
 sock.listen(1)
 
+initialized = False
+
 # Initial Ks and IDS should be shared between tag and reader
-TAG_IDS = random.randint(0, 2**96 - 1)
+IDS = random.randint(0, 2**96 - 1)
 k1 = random.randint(0, 2**96 - 1)
 k2 = random.randint(0, 2**96 - 1)
 k3 = random.randint(0, 2**96 - 1)
@@ -39,22 +41,33 @@ while True:
     try:
         print >>sys.stderr, 'client connected:', client_address
         while True:
+            initialized = False
+            if not initialized:
+                init = json.dumps({ 'IDS': IDS, 'k1': k1, 'k2': k2, 'k3': k3 })
+                connection.sendall(init)
+                ack = connection.recv(10000)
+                if ack == 'ACK': initialized = True
+                print 'initialized'
             # Expect IDS
+            data = connection.recv(10000)
+            ids_recieved = json.loads(data)
+            print { 'IDS': ids_recieved }
+
             # Calculate A, B, C and send
-            # Expect D, extract ID
-            # Update IDS and Ks
-            data = connection.recv(96)
-            print >> sys.stderr, 'received "%s"' % data
-            todo = calculateABC(int(data))
+            todo = calculateABC(int(ids_recieved['IDS']))
             print >> sys.stderr, 'calculated "%s"' % bin(todo[0])
             abc = { 'A': todo[0], 'B': todo[1], 'C': todo[2], 'n1': todo[3] }
             print abc
             abcSerial = json.dumps(abc)
+
+            # Expect D, extract ID
+            # Update IDS and Ks
             if data:
                 connection.sendall(abcSerial)
             else:
                 break
-    except:
+    except Exception as e:
+        print(e)
         connection.close()
     finally:
         connection.close()
