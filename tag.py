@@ -23,7 +23,7 @@ class LmapTag:
         self.db['IDS'] = random.randint(0, 2**96 - 1)
         self.ID = random.randint(0, 2**96-1)
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.s.settimeout(10)
+        self.s.settimeout(5)
         self.s.bind(("127.0.0.1", 3001))
         self.listeners = []
         print(self.ID)
@@ -71,21 +71,21 @@ class LmapTag:
         n1 = self.db['n1']
         n2 = self.db['n2']
         print('updatedadasd')
-        newIDS = (IDS + (n2 ^ k4)) ^ self.ID
-        newk1 = k1 ^ n2 ^ (k3 + self.ID)
-        newk2 = k2 ^ n2 ^ (k4 + self.ID)
-        newk3 = (k3 ^ n1) + (k1 ^ self.ID)
-        newk4 = (k4 ^ n1) + (k2 ^ self.ID)
+        newIDS = ((IDS + (n2 ^ k4)) % 2**96) ^ self.ID
+        newk1 = k1 ^ n2 ^ ((k3 + self.ID) % 2**96)
+        newk2 = k2 ^ n2 ^ ((k4 + self.ID) % 2**96)
+        newk3 = ((k3 ^ n1) + (k1 ^ self.ID)) % 2**96
+        newk4 = ((k4 ^ n1) + (k2 ^ self.ID)) % 2**96
         self.db = { 'k1': newk1, 'k2': newk2, 'k3': newk3, 'k4': newk4, 'IDS': newIDS }
 
     def run(self):
             while True:
-                #try:
+                try:
                     msg = self.receive()
                     if(msg == "hello"):
-                        print("HI")
                         # Send IDS
                         IDS = json.dumps({ 'IDS': self.db['IDS'] })
+                        print(bin(self.db["IDS"]))
                         self.sendMsg(IDS)
 
                         # Expect A, B, C
@@ -103,10 +103,10 @@ class LmapTag:
 
                         # Calculate new IDS, Ks 1-4,
                         self.update_values()
-                        '''except Exception as e:
-                            print(e)
-                            continue
-                        '''
+                except Exception as e:
+                    print(e)
+                    continue
+                    
 
 
     # A = IDS XOR K1 XOR n1 now the tag knows n1
