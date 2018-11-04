@@ -45,8 +45,9 @@ class LmapReader:
         self.db['n1'] = n1
         self.db['n2'] = n2
         A = IDS ^ k1 ^ n1
-        B = (IDS | k2) + n1
-        C = IDS + k3 + n2
+        B = ((IDS | k2) + n1) % 2**96 
+        C = ((IDS + k3) % 2**96) + n2
+        C = C % 2**96
         return [ A, B, C, n1, n2 ]
 
     def decodeD(self, D):
@@ -64,11 +65,11 @@ class LmapReader:
         k4 = self.db['k4']
         n1 = self.db['n1']
         n2 = self.db['n2']
-        newIDS = (IDS + (n2 ^ k4)) ^ ID
-        newk1 = k1 ^ n2 ^ (k3 + ID)
-        newk2 = k2 ^ n2 ^ (k4 + ID)
-        newk3 = (k3 ^ n1) + (k1 ^ ID)
-        newk4 = (k4 ^ n1) + (k2 ^ ID)
+        newIDS = (IDS + ((n2 ^ k4) % 2**96)) ^ ID
+        newk1 = k1 ^ n2 ^ ((k3 + ID) % 2**96)
+        newk2 = k2 ^ n2 ^ ((k4 + ID) % 2**96)
+        newk3 = ((k3 ^ n1) + (k1 ^ ID)) % 2**96
+        newk4 = ((k4 ^ n1) + (k2 ^ ID)) & 2**96
         self.db = { 'k1': newk1, 'k2': newk2, 'k3': newk3, 'k4': newk4, 'IDS': newIDS }
         print(ID)
 

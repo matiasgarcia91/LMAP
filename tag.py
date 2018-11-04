@@ -51,7 +51,7 @@ class LmapTag:
         n2 = C - IDS - k3
         self.db['n1'] = n1
         self.db['n2'] = n2
-        D = (IDS + self.ID) ^ n1 ^ n2
+        D = ((IDS + self.ID) % 2**96) ^ n1 ^ n2
         print('verifyready')
         print(self.db)
         return D
