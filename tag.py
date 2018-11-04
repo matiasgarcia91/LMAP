@@ -23,13 +23,18 @@ class LmapTag:
         self.db['IDS'] = random.randint(0, 2**96 - 1)
         self.ID = random.randint(0, 2**96-1)
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.s.settimeout(10)
         self.s.bind(("127.0.0.1", 3001))
         self.listeners = []
+        print(self.ID)
 
     def receive(self):
-        msg, _ = self.s.recvfrom(BUFFER_SIZE)
-        print("joder"+msg.decode())
-        return msg.decode()
+        msg, addr = self.s.recvfrom(BUFFER_SIZE)
+        if(msg.decode() == "listener"):
+            self.listeners.append(addr)
+            return self.receive()
+        msg = msg.decode()
+        return msg
         
     def sendMsg(self, msg):
         for addr in self.listeners:
@@ -43,12 +48,12 @@ class LmapTag:
         k2 = self.db['k2']
         k3 = self.db['k3']
         n1 = A ^ k1 ^ IDS
-        B2 = (IDS | k2) + n1
+        B2 = ((IDS | k2) + n1 ) % 2**96
         if B2 == abc['B']:
             print('Reader authenticated')
         else:
             print('auth failed')
-        n2 = C - IDS - k3
+        n2 = (((C - IDS) % 2**96) - k3) % 2**96
         self.db['n1'] = n1
         self.db['n2'] = n2
         D = ((IDS + self.ID) % 2**96) ^ n1 ^ n2
@@ -76,10 +81,8 @@ class LmapTag:
     def run(self):
             while True:
                 #try:
-                    msg, addr = self.s.recvfrom(BUFFER_SIZE)
-                    if(msg.decode() == "listener"):
-                        self.listeners.append(addr)
-                    elif(msg.decode() == "hello"):
+                    msg = self.receive()
+                    if(msg == "hello"):
                         print("HI")
                         # Send IDS
                         IDS = json.dumps({ 'IDS': self.db['IDS'] })

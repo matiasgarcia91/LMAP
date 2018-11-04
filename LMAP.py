@@ -1,5 +1,7 @@
 import socket, sys, random, json, time
 
+
+BUFFER_SIZE = 10000
 '''
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,6 +37,14 @@ class LmapReader:
         for addr in self.listeners:
             self.socket.sendto(msg.encode(), addr)
 
+    def receive(self):
+        msg, addr = self.socket.recvfrom(BUFFER_SIZE)
+        if(msg.decode() == "listener"):
+            self.listeners.append(addr)
+            return self.receive()
+        msg = msg.decode()
+        return msg
+
     def calculateABC(self, IDS):
         k1 = self.db["k1"]
         k2 = self.db["k2"]
@@ -44,6 +54,7 @@ class LmapReader:
         self.db['IDS'] = IDS
         self.db['n1'] = n1
         self.db['n2'] = n2
+        print(self.db)
         A = IDS ^ k1 ^ n1
         B = ((IDS | k2) + n1) % 2**96 
         C = ((IDS + k3) % 2**96) + n2
@@ -54,7 +65,7 @@ class LmapReader:
         n1 = self.db['n1']
         n2 = self.db['n2']
         IDS = self.db['IDS']
-        ID = (D ^ n1 ^ n2) - IDS
+        ID = ((D ^ n1 ^ n2) - IDS) % 2**96
         return ID
 
     def update_values(self, ID):
@@ -69,7 +80,7 @@ class LmapReader:
         newk1 = k1 ^ n2 ^ ((k3 + ID) % 2**96)
         newk2 = k2 ^ n2 ^ ((k4 + ID) % 2**96)
         newk3 = ((k3 ^ n1) + (k1 ^ ID)) % 2**96
-        newk4 = ((k4 ^ n1) + (k2 ^ ID)) & 2**96
+        newk4 = ((k4 ^ n1) + (k2 ^ ID)) % 2**96
         self.db = { 'k1': newk1, 'k2': newk2, 'k3': newk3, 'k4': newk4, 'IDS': newIDS }
         print(ID)
 
@@ -97,9 +108,9 @@ class LmapReader:
                     print('initialized')
                 '''
                 # Expect IDS
-                data, _ = self.socket.recvfrom(10000)
-                print(data.decode())
-                ids_recieved = json.loads(data.decode())
+                data = self.receive()
+                print(data)
+                ids_recieved = json.loads(data)
 
                 # Calculate A, B, C and send
                 todo = self.calculateABC(int(ids_recieved['IDS']))
@@ -108,8 +119,8 @@ class LmapReader:
                 self.sendMsg(abcSerial)
 
                 # Expect D, extract ID
-                authreplyraw, _ = self.socket.recvfrom(10000)
-                authreply = json.loads(authreplyraw.decode())
+                authreplyraw = self.receive()
+                authreply = json.loads(authreplyraw)
                 ID = self.decodeD(authreply['D'])
                 # Update IDS and Ks 1-4
                 self.update_values(ID)
