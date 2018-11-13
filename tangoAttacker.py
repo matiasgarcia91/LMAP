@@ -1,7 +1,7 @@
  #!/usr/bin/env python
-import socket, json, sys
+import socket, json, sys, statistics
 from BitVector import BitVector
-from approximations import calculate_approximations
+from approximations import calculate_approximations, printer
 
 class tangoAttacker:
 
@@ -17,6 +17,21 @@ class tangoAttacker:
         data, _ = self.socket.recvfrom(10000)
         return data.decode()
 
+    def calculate_stats(self):
+        all_rounds = self.round_aproximations
+        approximations_results = []
+        approx_mean = 0
+        approx_std = 0
+        for current in range(0,26):
+            values = []
+            for round in all_rounds:
+                values.append(round[current])
+            approx_mean = statistics.mean(values)
+            approx_std = statistics.pstdev(values)
+            approximations_results.append([approx_mean, approx_std])
+        return approximations_results
+
+
     def attack(self, ids):
         db_tmp = {}
         db_tmp["IDS"] = ids["IDS"]
@@ -31,6 +46,9 @@ class tangoAttacker:
             db[message] = BitVector(size=96, intVal=value)
         current_approx = calculate_approximations(db, self.ID)
         self.round_aproximations.append(current_approx)
+        results = self.calculate_stats()
+        printer(results)
+
 
 
 
@@ -45,7 +63,6 @@ class tangoAttacker:
                 if(data == "hello"):
                     ids= self.receive()
                     ids_json = json.loads(ids)
-                    print("attack")
                     self.attack(ids_json)
 
                 '''except Exception as e:
