@@ -22,7 +22,8 @@ class tangoAttacker:
         approximations_results = []
         approx_mean = 0
         approx_std = 0
-        for current in range(0,26):
+        # For every approximation gather all rounds of it and calculate mean and std
+        for current in range(0,32):
             values = []
             for round in all_rounds:
                 values.append(round[current])
@@ -47,7 +48,7 @@ class tangoAttacker:
         current_approx = calculate_approximations(db, self.ID)
         self.round_aproximations.append(current_approx)
         results = self.calculate_stats()
-        printer(results)
+        printer(results, self.rounds)
 
 
 
