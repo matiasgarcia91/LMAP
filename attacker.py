@@ -53,8 +53,8 @@ class LmapAttacker:
         aux["n2"][index] = self.ID[index] ^ get("n1") ^ get("D") ^ get("IDS")
 
 
-    def reveal(self, seen, where_set):
-        for auxround in seen:
+    def reveal(self):
+        for auxround in self.seen:
             auxround["K1"] = BitVector(size=96)
             auxround["K2"] = BitVector(size=96)
             auxround["K3"] = BitVector(size=96)
@@ -62,9 +62,7 @@ class LmapAttacker:
             auxround["n1"] = BitVector(size=96)
             auxround["n2"] = BitVector(size=96)
 
-        print("Rounds needed: " + len(seen))
-
-
+        print("Rounds needed: " + len(self.seen))
 
         return None
 
@@ -77,15 +75,15 @@ class LmapAttacker:
         self.socket.sendto("listener".encode(), ("127.0.0.1", 3001))
         count = 0
 
-        while (bitsSet.int_val() != 2**96-1):
-            #try:
-                data = self.listen_round()
-                for i in range(0,96):
-                    if(data["IDS"][i] == 1):
-                        bitsSet[i] = 1
-                        rounds_where_set[i] = count
-                seen.append(data)
-                count+=1
+        current = 95
+        while (current != 0):
+            data = self.listen_round()
+            ids = data["IDS"]
+            while(ids[current] == 1):
+                rounds_where_set[current] = count
+                current -= 1
+            count += 1
+            seen.append(data)
 
         data = self.listen_round()
         seen.append(data)
@@ -96,6 +94,8 @@ class LmapAttacker:
         self.seen = seen
         self.where_set = rounds_where_set
         self.ID = BitVector(size=96)
+
+        self.reveal()
 
 
     
