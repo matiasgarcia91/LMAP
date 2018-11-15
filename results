@@ -1,0 +1,335 @@
+// no update, r1
+A ^ B:           50
+B ^ C:           51
+C ^ D:           47
+A ^ C:           58
+B ^ D:           46
+A ^ D:           49
+IDS ^ A:         45
+IDS ^ B:         55
+IDS ^ C:         51
+IDS ^ D:         43
+A ^ B ^ C:       46
+A ^ B ^ D:       55
+A ^ B ^ IDS:     48
+A ^ C ^ D:       47
+A ^ C ^ IDS:     45
+A ^ D ^ IDS:     50
+B ^ C ^ D:       55
+B ^ D ^ IDS:     45
+B ^ C ^ IDS:     41
+C ^ D ^ IDS:     51
+A ^ B ^ C ^ D:   49
+A ^ B ^ C ^ IDS: 51
+A ^ B ^ D ^ IDS: 44
+A ^ C ^ D ^ IDS: 49
+B ^ C ^ D ^ IDS: 43
+A ^ B ^ C ^ D ^ IDS: 41
+A:               54
+B:               44
+C:               48
+D:               48
+IDS:             47
+
+
+Round: 215
+------------------------------------------------------------------------
+A ^ B:           45
+B ^ C:           45
+C ^ D:           44
+A ^ C:           52
+B ^ D:           39
+A ^ D:           46
+IDS ^ A:         55
+IDS ^ B:         49
+IDS ^ C:         41
+IDS ^ D:         43
+A ^ B ^ C:       46
+A ^ B ^ D:       45
+A ^ B ^ IDS:     39
+A ^ C ^ D:       58
+A ^ C ^ IDS:     55
+A ^ D ^ IDS:     56
+B ^ C ^ D:       44
+B ^ D ^ IDS:     53
+B ^ C ^ IDS:     43
+C ^ D ^ IDS:     50
+A ^ B ^ C ^ D:   52
+A ^ B ^ C ^ IDS: 47
+A ^ B ^ D ^ IDS: 40
+A ^ C ^ D ^ IDS: 48
+B ^ C ^ D ^ IDS: 33
+A ^ B ^ C ^ D ^ IDS: 52
+A:               50
+B:               43
+C:               46
+D:               50
+IDS:             40
+
+
+Round: 259
+------------------------------------------------------------------------
+A ^ B:           44
+B ^ C:           37
+C ^ D:           38
+A ^ C:           45
+B ^ D:           43
+A ^ D:           51
+IDS ^ A:         50
+IDS ^ B:         49
+IDS ^ C:         58
+IDS ^ D:         54
+A ^ B ^ C:       46
+A ^ B ^ D:       48
+A ^ B ^ IDS:     52
+A ^ C ^ D:       48
+A ^ C ^ IDS:     51
+A ^ D ^ IDS:     52
+B ^ C ^ D:       44
+B ^ D ^ IDS:     43
+B ^ C ^ IDS:     45
+C ^ D ^ IDS:     53
+A ^ B ^ C ^ D:   51
+A ^ B ^ C ^ IDS: 48
+A ^ B ^ D ^ IDS: 47
+A ^ C ^ D ^ IDS: 46
+B ^ C ^ D ^ IDS: 42
+A ^ B ^ C ^ D ^ IDS: 42
+A:               47
+B:               39
+C:               42
+D:               51
+
+A ^ B:           43
+B ^ C:           49
+C ^ D:           48
+A ^ C:           41
+B ^ D:           43
+A ^ D:           43
+IDS ^ A:         50
+IDS ^ B:         43
+IDS ^ C:         48
+IDS ^ D:         48
+A ^ B ^ C:       44
+A ^ B ^ D:       51
+A ^ B ^ IDS:     55
+A ^ C ^ D:       44
+A ^ C ^ IDS:     45
+A ^ D ^ IDS:     43
+B ^ C ^ D:       36
+B ^ D ^ IDS:     53
+B ^ C ^ IDS:     47
+C ^ D ^ IDS:     46
+A ^ B ^ C ^ D:   42
+A ^ B ^ C ^ IDS: 42
+A ^ B ^ D ^ IDS: 43
+A ^ C ^ D ^ IDS: 58
+B ^ C ^ D ^ IDS: 42
+A ^ B ^ C ^ D ^ IDS: 52
+A:               44
+B:               43
+C:               46
+D:               46
+IDS:             43
+
+
+------------------------------------------------------------------------
+                               Round: 366
+------------------------------------------------------------------------
+A ^ B:           48
+B ^ C:           48
+C ^ D:           47
+A ^ C:           47
+B ^ D:           55
+A ^ D:           54
+IDS ^ A:         49
+IDS ^ B:         47
+IDS ^ C:         44
+IDS ^ D:         43
+A ^ B ^ C:       48
+A ^ B ^ D:       55
+A ^ B ^ IDS:     41
+A ^ C ^ D:       52
+A ^ C ^ IDS:     44
+A ^ D ^ IDS:     51
+B ^ C ^ D:       48
+B ^ D ^ IDS:     44
+B ^ C ^ IDS:     59
+C ^ D ^ IDS:     56
+A ^ B ^ C ^ D:   40
+A ^ B ^ C ^ IDS: 45
+A ^ B ^ D ^ IDS: 50
+A ^ C ^ D ^ IDS: 43
+B ^ C ^ D ^ IDS: 43
+A ^ B ^ C ^ D ^ IDS: 49
+A:               50
+B:               54
+C:               49
+D:               44
+IDS:             51
+
+
+
+
+
+// con update
+A ^ B:           52
+B ^ C:           46
+C ^ D:           46
+A ^ C:           49
+B ^ D:           49
+A ^ D:           35
+IDS ^ A:         47
+IDS ^ B:         56
+IDS ^ C:         50
+IDS ^ D:         51
+A ^ B ^ C:       49
+A ^ B ^ D:       48
+A ^ B ^ IDS:     51
+A ^ C ^ D:       50
+A ^ C ^ IDS:     47
+A ^ D ^ IDS:     56
+B ^ C ^ D:       50
+B ^ D ^ IDS:     49
+B ^ C ^ IDS:     41
+C ^ D ^ IDS:     55
+A ^ B ^ C ^ D:   39
+A ^ B ^ C ^ IDS: 52
+A ^ B ^ D ^ IDS: 40
+A ^ C ^ D ^ IDS: 50
+B ^ C ^ D ^ IDS: 48
+A ^ B ^ C ^ D ^ IDS: 48
+A:               48
+B:               52
+C:               49
+D:               55
+IDS:             48
+
+A ^ B:           45
+B ^ C:           43
+C ^ D:           52
+A ^ C:           47
+B ^ D:           45
+A ^ D:           48
+IDS ^ A:         46
+IDS ^ B:         47
+IDS ^ C:         50
+IDS ^ D:         49
+A ^ B ^ C:       45
+A ^ B ^ D:       55
+A ^ B ^ IDS:     44
+A ^ C ^ D:       48
+A ^ C ^ IDS:     47
+A ^ D ^ IDS:     47
+B ^ C ^ D:       54
+B ^ D ^ IDS:     48
+B ^ C ^ IDS:     43
+C ^ D ^ IDS:     52
+A ^ B ^ C ^ D:   53
+A ^ B ^ C ^ IDS: 48
+A ^ B ^ D ^ IDS: 44
+A ^ C ^ D ^ IDS: 48
+B ^ C ^ D ^ IDS: 50
+A ^ B ^ C ^ D ^ IDS: 43
+A:               45
+B:               48
+C:               47
+D:               40
+IDS:             48
+
+A ^ B:           45
+B ^ C:           49
+C ^ D:           41
+A ^ C:           39
+B ^ D:           54
+A ^ D:           47
+IDS ^ A:         44
+IDS ^ B:         53
+IDS ^ C:         48
+IDS ^ D:         50
+A ^ B ^ C:       50
+A ^ B ^ D:       46
+A ^ B ^ IDS:     44
+A ^ C ^ D:       55
+A ^ C ^ IDS:     43
+A ^ D ^ IDS:     34
+B ^ C ^ D:       56
+B ^ D ^ IDS:     52
+B ^ C ^ IDS:     50
+C ^ D ^ IDS:     42
+A ^ B ^ C ^ D:   42
+A ^ B ^ C ^ IDS: 45
+A ^ B ^ D ^ IDS: 46
+A ^ C ^ D ^ IDS: 46
+B ^ C ^ D ^ IDS: 50
+A ^ B ^ C ^ D ^ IDS: 48
+A:               46
+B:               46
+C:               45
+D:               47
+IDS:             52
+
+
+A ^ B:           53
+B ^ C:           52
+C ^ D:           50
+A ^ C:           54
+B ^ D:           39
+A ^ D:           43
+IDS ^ A:         53
+IDS ^ B:         40
+IDS ^ C:         58
+IDS ^ D:         48
+A ^ B ^ C:       45
+A ^ B ^ D:       51
+A ^ B ^ IDS:     51
+A ^ C ^ D:       44
+A ^ C ^ IDS:     44
+A ^ D ^ IDS:     42
+B ^ C ^ D:       55
+B ^ D ^ IDS:     53
+B ^ C ^ IDS:     51
+C ^ D ^ IDS:     46
+A ^ B ^ C ^ D:   62
+A ^ B ^ C ^ IDS: 46
+A ^ B ^ D ^ IDS: 42
+A ^ C ^ D ^ IDS: 50
+B ^ C ^ D ^ IDS: 40
+A ^ B ^ C ^ D ^ IDS: 51
+A:               58
+B:               35
+C:               53
+D:               46
+IDS:             48
+
+A ^ B:           41
+B ^ C:           45
+C ^ D:           52
+A ^ C:           49
+B ^ D:           47
+A ^ D:           37
+IDS ^ A:         54
+IDS ^ B:         51
+IDS ^ C:         40
+IDS ^ D:         40
+A ^ B ^ C:       52
+A ^ B ^ D:       53
+A ^ B ^ IDS:     41
+A ^ C ^ D:       60
+A ^ C ^ IDS:     45
+A ^ D ^ IDS:     47
+B ^ C ^ D:       37
+B ^ D ^ IDS:     57
+B ^ C ^ IDS:     42
+C ^ D ^ IDS:     42
+A ^ B ^ C ^ D:   46
+A ^ B ^ C ^ IDS: 49
+A ^ B ^ D ^ IDS: 45
+A ^ C ^ D ^ IDS: 48
+B ^ C ^ D ^ IDS: 40
+A ^ B ^ C ^ D ^ IDS: 45
+A:               46
+B:               44
+C:               39
+D:               45
+IDS:             50

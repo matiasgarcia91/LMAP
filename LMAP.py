@@ -56,7 +56,7 @@ class LmapReader:
         self.db['n2'] = n2
         print(self.db)
         A = IDS ^ k1 ^ n1
-        B = ((IDS | k2) + n1) % 2**96 
+        B = ((IDS | k2) + n1) % 2**96
         C = ((IDS + k3) % 2**96) + n2
         C = C % 2**96
         return [ A, B, C, n1, n2 ]
@@ -124,7 +124,7 @@ class LmapReader:
                 ID = self.decodeD(authreply['D'])
                 # Update IDS and Ks 1-4
                 self.update_values(ID)
-                
+
                 time.sleep(1.5)
             except Exception as e:
                 print(e)

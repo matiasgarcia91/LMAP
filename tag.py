@@ -35,7 +35,7 @@ class LmapTag:
             return self.receive()
         msg = msg.decode()
         return msg
-        
+
     def sendMsg(self, msg):
         for addr in self.listeners:
             self.s.sendto(msg.encode(), addr)
@@ -91,7 +91,7 @@ class LmapTag:
                         # Expect A, B, C
                         data = self.receive()
                         abc = json.loads(data)
-                        
+
                         # Calculate B' and check it B == B'
                         # Calculate and send D
                         D = self.verifyABC(abc)
@@ -106,7 +106,7 @@ class LmapTag:
                 except Exception as e:
                     print(e)
                     continue
-                    
+
 
 
     # A = IDS XOR K1 XOR n1 now the tag knows n1
