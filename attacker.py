@@ -32,12 +32,12 @@ class LmapAttacker:
                     db[message] = BitVector(size=96, intVal=value)
                 return db
 
-    def carry(a,b,c):
+    def carry(self,a,b,c):
         return (a & b) | ((a | b) & c)
 
     def get_bits(self, index, it, carry):
         
-        aux = seen[it]
+        aux = self.seen[it]
 
         def get(name, round_dif=0, offset=0):
             return self.seen[it+round_dif][name][index + offset] 
@@ -48,10 +48,9 @@ class LmapAttacker:
         n22 = get("IDS",1) ^ get("C",1) ^ get("C") ^ get("D") ^ get("K1") 
         aux["K2"][index] = get("IDS",2) ^ get("IDS",1) ^ n22 ^ get("K4") ^ get("n1")
         n12 = get("B") ^ (get("IDS",1) | (get("K2") ^ get("K4") ^ get("D") ^ get("n1")))
-        ID[index] = get("IDS", 1) ^ get("IDS", 1) ^ n12 ^ n22
+        self.ID[index] = get("IDS", 1) ^ get("IDS", 1) ^ n12 ^ n22
         aux["K3"][index] = get("C") ^ get("n2") ^ get("IDS")
-        aux["n2"][index] = ID[index] ^ get("n1") ^ get("D") ^ get("IDS")
-
+        aux["n2"][index] = self.ID[index] ^ get("n1") ^ get("D") ^ get("IDS")
 
 
     def reveal(self, seen, where_set):
@@ -95,7 +94,7 @@ class LmapAttacker:
         count+=2
 
         self.seen = seen
-        self.where_set = where_set
+        self.where_set = rounds_where_set
         self.ID = BitVector(size=96)
 
 
