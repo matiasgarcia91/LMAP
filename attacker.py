@@ -42,15 +42,33 @@ class LmapAttacker:
         def get(name, round_dif=0, offset=0):
             return self.seen[it+round_dif][name][index + offset] 
 
-        aux["n1"][index] = get("B") ^ get("IDS")
+        aux["n1"][index] = get("B") ^ get("IDS") ^ self.c["B"][it][index]
         aux["K1"][index] = get("A") ^ get("n1") ^ get("IDS")
-        aux["K4"][index] = get("IDS", 1) ^ get("D") ^ get("n1") 
-        n22 = get("IDS",1) ^ get("C",1) ^ get("C") ^ get("D") ^ get("K1") 
-        aux["K2"][index] = get("IDS",2) ^ get("IDS",1) ^ n22 ^ get("K4") ^ get("n1")
-        n12 = get("B") ^ (get("IDS",1) | (get("K2") ^ get("K4") ^ get("D") ^ get("n1")))
-        self.ID[index] = get("IDS", 1) ^ get("IDS", 1) ^ n12 ^ n22
-        aux["K3"][index] = get("C") ^ get("n2") ^ get("IDS")
-        aux["n2"][index] = self.ID[index] ^ get("n1") ^ get("D") ^ get("IDS")
+        aux["K4"][index] = get("IDS", 1) ^ get("D") ^ get("n1") ^ self.c["IDS+1"][it][index]
+        n22 = get("IDS",1) ^ get("C",1) ^ get("C") ^ get("D") ^ get("K1") ^ self.c["C/1"][it][index] ^ self.c["C/2"][it][index] ^ self.c["D"][it][index] ^ self.c["C+1/1"][it][index] ^ self.c["C+1/2"][it][index] ^ self.c["C+1/3"][it][index]
+
+        aux["K2"][index] = get("IDS",2) ^ get("IDS",1) ^ n22 ^ get("K4") ^ get("n1") ^ self.c["K2aux"][it][index] ^ self.c["K2aux"][it][index]
+        n12 = get("B",1) ^ (get("IDS",1) | (get("K2") ^ get("K4") ^ get("D") ^ get("n1") ^ get("IDS") ^ self.c["B+1/1"][it][index] ^ self.c["D"][it][index]) ^ self.c["B+1/2"][it][index])
+        self.ID[index] = get("IDS", 1) ^ get("D", 1) ^ n12 ^ n22 ^ self.c["D+1"][it][index]
+        aux["K3"][index] = get("C") ^ get("n2") ^ get("IDS") ^self.c["C/1"][it][index] ^self.c["C/2"][it][index]
+        aux["n2"][index] = self.ID[index] ^ get("n1") ^ get("D") ^ get("IDS") ^ self.c["D"][it][index]
+
+        self.c["IDS+1"][it][index-1] = carry(get("IDS"), get("K4") ^ get("n2"), self.c["IDS+1"][it][index])
+        self.c["B"][it][index-1] = carry(get("n1"), get("IDS") | get("K2"), self.c["B"][it][index])
+        self.c["A+1"][it][index-1] = carry(get("K3"), self.ID[index], self.c["A+1"][it][index])
+        self.c["B+1/1"][it][index-1] = carry(get("K4"), self.ID[index], self.c["B+1/1"][it][index])
+        self.c["B+1/2"][it][index-1] = carry(n12, get("IDS", 1) | (get("K2") ^ get("n2") ^ get("K4") ^self.ID[index] ^self.c["B+1/1"][it][index]), self.c["B+1/2"][it][index])
+        self.c["C+1/1"][it][index-1] = carry(get("K3") ^ get("n1"), get("K1") ^ self.ID[index], self.c["C+1/1"][it][index])
+        self.c["C+1/2"][it][index-1] = carry(get("IDS", 1), get("K3") ^ get("n1") ^ get("K1") ^ self.ID[index] ^ self.c["C+1/1"][it][index], self.c["C+1/2"][it][index]) 
+        self.c["C+1/3"][it][index-1] = carry(n22, get("IDS", 1) ^ get("K3") ^ get("n1") ^ get("K1") ^ self.ID[index] ^ self.c["C+1/1"][it][index] ^ self.c["C+1/2"][it][index], self.c["C+1/3"][it][index])
+        self.c["D+1"][it][index-1] = carry(get("IDS", 1), self.ID[index], self.c["D+1"][it][index])
+        self.c["C/1"][it][index-1] = carry(get("IDS"), get("K3"), self.c["C/1"][it][index])
+        self.c["C/2"][it][index-1] = carry(get("n2"), get("IDS") ^ get("K3") ^ self.c["C/1"][it][index], self.c["C/2"][it][index])
+        self.c["D"][it][index-1] = carry(get("IDS"), self.ID[index], self.c["D"][it][index])
+        self.c["K2aux"][it][index-1] = carry(get("K4") ^ get("n1"), get("K2") ^ self.ID[index], self.c["K2aux"][it][index])
+        self.c["K2/2"][it][index-1] = carry(get("IDS+1"), n22 ^ get("K4") ^ get("n1"), get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
+
+        # TODO: CARRY NECESARO PARA N12
 
 
     def reveal(self):
@@ -67,7 +85,6 @@ class LmapAttacker:
         return None
 
     def run(self):
-        bitsSet = BitVector(size = 96)
         rounds_where_set = [None]*96
         seen = []
 
@@ -94,6 +111,21 @@ class LmapAttacker:
         self.seen = seen
         self.where_set = rounds_where_set
         self.ID = BitVector(size=96)
+        self.c = {}
+        self.c["IDS+1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["B"] = [BitVector(size=96, intVal=0)] * count
+        self.c["A+1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["B+1/1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["B+1/2"] = [BitVector(size=96, intVal=0)] * count
+        self.c["C+1/1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["C+1/2"] = [BitVector(size=96, intVal=0)] * count
+        self.c["C+1/3"] = [BitVector(size=96, intVal=0)] * count
+        self.c["D+1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["C/1"] = [BitVector(size=96, intVal=0)] * count
+        self.c["C/2"] = [BitVector(size=96, intVal=0)] * count
+        self.c["D"] = [BitVector(size=96, intVal=0)] * count
+        self.c["K2aux"] = [BitVector(size=96, intVal=0)] * count
+        self.c["K2/2"] = [BitVector(size=96, intVal=0)] * count
 
         self.reveal()
 
