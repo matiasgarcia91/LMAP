@@ -73,6 +73,25 @@ class LmapAttacker:
         self.c["K2aux"][it][index-1] = self.carry(get("K4") ^ get("n1"), get("K2") ^ self.ID[index], self.c["K2aux"][it][index])
         self.c["K2/2"][it][index-1] = self.carry(get("IDS+1"), n22 ^ get("K4") ^ get("n1") ^ get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
 
+    def update_bits(self, index, it):
+
+        k1 = self.seen[it]["K1"].int_val() ^ self.seen[it]["n2"].int_val() ^ (self.seen[it]["K3"].int_val() + self.ID.int_val())
+        k2 = self.seen[it]["K2"].int_val() ^ self.seen[it]["n2"].int_val() ^ (self.seen[it]["K4"].int_val() + self.ID.int_val())
+        k3 = self.seen[it]["K3"].int_val() ^ self.seen[it]["n1"].int_val() ^ (self.seen[it]["K1"].int_val() + self.ID.int_val())
+        k1 = self.seen[it]["K4"].int_val() ^ self.seen[it]["n1"].int_val() ^ (self.seen[it]["K2"].int_val() + self.ID.int_val())
+
+        auxVal = 2**(95-index)
+        self.seen[it+1]["K1"] = BitVector(size=96, intVal = k1 % auxVal)
+        self.seen[it+1]["K2"] = BitVector(size=96, intVal = k1 % auxVal)
+        self.seen[it+1]["K3"] = BitVector(size=96, intVal = k1 % auxVal)
+        self.seen[it+1]["K4"] = BitVector(size=96, intVal = k1 % auxVal) 
+
+        n12 = self.seen[it+1]["IDS"].int_val() ^ self.seen[it+1]["A"].int_val() ^ self.seen[it+1]["K1"].int_val()
+        self.seen[it+1]["n1"] = BitVector(size=96, intVal = n12 % auxVal) 
+
+        aux = (self.seen[it+1]["IDS"].int_val() + self.ID.int_val()) ^ n12 ^ self.seen[it+1]["D"].int_val()
+        self.seen[it+1]["n2"] = BitVector(size=96, intVal=aux%auxVal)
+
 
     def reveal(self):
         for auxround in self.seen:
