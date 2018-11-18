@@ -102,6 +102,20 @@ class LmapAttacker:
             auxround["n1"] = BitVector(size=96)
             auxround["n2"] = BitVector(size=96)
 
+        current = 95
+        it = self.where_set[current]
+        while(current >= 0):
+            self.get_bits(current, it)
+            current = current - 1
+            while(self.where_set[current] == it):
+                self.get_bits(current, it)
+                current = current - 1
+            it2 = self.where_set[current]
+            while(it <= it2):
+                self.update_bits(current+1, it)
+                it += 1
+            
+
         print("Rounds needed: " + len(self.seen))
 
         return None
