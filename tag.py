@@ -49,28 +49,26 @@ class LmapTag:
         k3 = self.db['k3']
         n1 = A ^ k1 ^ IDS
         B2 = ((IDS | k2) + n1 ) % 2**96
-        if B2 == abc['B']:
-            print('Reader authenticated')
-        else:
+        if B2 != abc['B']:
             print('auth failed')
         n2 = (((C - IDS) % 2**96) - k3) % 2**96
         self.db['n1'] = n1
         self.db['n2'] = n2
         D = ((IDS + self.ID) % 2**96) ^ n1 ^ n2
-        print('verifyready')
-        print(self.db)
+        #print('verifyready')
+        #print(self.db)
         return D
 
     def update_values(self):
         IDS = self.db['IDS']
-        print('updatedstarted')
+        #print('updatedstarted')
         k1 = self.db['k1']
         k2 = self.db['k2']
         k3 = self.db['k3']
         k4 = self.db['k4']
         n1 = self.db['n1']
         n2 = self.db['n2']
-        print('updatedadasd')
+        #print('updatedadasd')
         newIDS = ((IDS + (n2 ^ k4)) % 2**96) ^ self.ID
         newk1 = k1 ^ n2 ^ ((k3 + self.ID) % 2**96)
         newk2 = k2 ^ n2 ^ ((k4 + self.ID) % 2**96)
@@ -85,7 +83,7 @@ class LmapTag:
                     if(msg == "hello"):
                         # Send IDS
                         IDS = json.dumps({ 'IDS': self.db['IDS'] })
-                        print(bin(self.db["IDS"]))
+                        #print(bin(self.db["IDS"]))
                         self.sendMsg(IDS)
 
                         # Expect A, B, C

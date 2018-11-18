@@ -28,7 +28,7 @@ class LmapAttacker:
                 msg = self.receive()
                 temp_dict.update(json.loads(msg))
 
-                for message, value in temp_dict:
+                for message, value in temp_dict.items():
                     db[message] = BitVector(size=96, intVal=value)
                 return db
 
@@ -74,13 +74,14 @@ class LmapAttacker:
         self.c["C/2"][it][index-1] = self.carry(get("n2"), get("IDS") ^ get("K3") ^ self.c["C/1"][it][index], self.c["C/2"][it][index])
         self.c["D"][it][index-1] = self.carry(get("IDS"), self.ID[index], self.c["D"][it][index])
         self.c["K2aux"][it][index-1] = self.carry(get("K4") ^ get("n1"), get("K2") ^ self.ID[index], self.c["K2aux"][it][index])
-        self.c["K2/2"][it][index-1] = self.carry(get("IDS+1"), get("n2", 1) ^ get("K4") ^ get("n1") ^ get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
+        self.c["K2/2"][it][index-1] = self.carry(get("IDS",1), get("n2", 1) ^ get("K4") ^ get("n1") ^ get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
 
     
     def carry_of_round(self, limit, it):
         index = 0
         while (index<limit):
             self.set_carry(index, it)
+            index+=1
 
     
     def update_bits(self, index, it):
@@ -88,13 +89,13 @@ class LmapAttacker:
         k1 = self.seen[it]["K1"].int_val() ^ self.seen[it]["n2"].int_val() ^ (self.seen[it]["K3"].int_val() + self.ID.int_val())
         k2 = self.seen[it]["K2"].int_val() ^ self.seen[it]["n2"].int_val() ^ (self.seen[it]["K4"].int_val() + self.ID.int_val())
         k3 = self.seen[it]["K3"].int_val() ^ self.seen[it]["n1"].int_val() ^ (self.seen[it]["K1"].int_val() + self.ID.int_val())
-        k1 = self.seen[it]["K4"].int_val() ^ self.seen[it]["n1"].int_val() ^ (self.seen[it]["K2"].int_val() + self.ID.int_val())
+        k4 = self.seen[it]["K4"].int_val() ^ self.seen[it]["n1"].int_val() ^ (self.seen[it]["K2"].int_val() + self.ID.int_val())
 
         auxVal = 2**(95-index)
         self.seen[it+1]["K1"] = BitVector(size=96, intVal = k1 % auxVal)
-        self.seen[it+1]["K2"] = BitVector(size=96, intVal = k1 % auxVal)
-        self.seen[it+1]["K3"] = BitVector(size=96, intVal = k1 % auxVal)
-        self.seen[it+1]["K4"] = BitVector(size=96, intVal = k1 % auxVal) 
+        self.seen[it+1]["K2"] = BitVector(size=96, intVal = k2 % auxVal)
+        self.seen[it+1]["K3"] = BitVector(size=96, intVal = k3 % auxVal)
+        self.seen[it+1]["K4"] = BitVector(size=96, intVal = k4 % auxVal) 
 
         n12 = self.seen[it+1]["IDS"].int_val() ^ self.seen[it+1]["A"].int_val() ^ self.seen[it+1]["K1"].int_val()
         self.seen[it+1]["n1"] = BitVector(size=96, intVal = n12 % auxVal) 
@@ -114,7 +115,11 @@ class LmapAttacker:
 
         current = 95
         while(current >= 0):
+            
             it = self.where_set[current]
+            print(str(current) + "," + str(it))
+            if(current < 95):
+                self.carry_of_round(current, it)
             self.get_bits(current, it)
             current = current - 1
             while(self.where_set[current] == it):
@@ -127,7 +132,8 @@ class LmapAttacker:
         
 
 
-        print("Rounds needed: " + len(self.seen))
+        print("Rounds needed: " , len(self.seen))
+        print(self.ID)
 
         return None
 
@@ -140,12 +146,13 @@ class LmapAttacker:
         count = 0
 
         current = 95
-        while (current != 0):
+        while (current >= 0):
             data = self.listen_round()
             ids = data["IDS"]
-            while(ids[current] == 1):
+            while(ids[current] == 1 and current>=0):
                 rounds_where_set[current] = count
                 current -= 1
+                print(current)
             count += 1
             seen.append(data)
 
@@ -177,6 +184,6 @@ class LmapAttacker:
         self.reveal()
 
 
-    
+print("A")
 attacker = LmapAttacker()
 attacker.run()
