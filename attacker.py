@@ -52,9 +52,12 @@ class LmapAttacker:
         aux["K3"][index] = get("C") ^ get("n2") ^ get("IDS") ^self.c["C/1"][it][index] ^self.c["C/2"][it][index]
         aux["n2"][index] = self.ID[index] ^ get("n1") ^ get("D") ^ get("IDS") ^ self.c["D"][it][index]
 
-        self.set_carry(index, it, n12, n22)
+        self.seen[it+1]["n1"][index] = n12
+        self.seen[it+1]["n2"][index] = n22
 
-    def set_carry(self, index, it, n12, n22):
+        self.set_carry(index, it)
+
+    def set_carry(self, index, it):
         def get(name, round_dif=0, offset=0):
             return self.seen[it+round_dif][name][index + offset] 
 
@@ -62,17 +65,24 @@ class LmapAttacker:
         self.c["B"][it][index-1] = self.carry(get("n1"), get("IDS") | get("K2"), self.c["B"][it][index])
         self.c["A+1"][it][index-1] = self.carry(get("K3"), self.ID[index], self.c["A+1"][it][index])
         self.c["B+1/1"][it][index-1] = self.carry(get("K4"), self.ID[index], self.c["B+1/1"][it][index])
-        self.c["B+1/2"][it][index-1] = self.carry(n12, get("IDS", 1) | (get("K2") ^ get("n2") ^ get("K4") ^self.ID[index] ^self.c["B+1/1"][it][index]), self.c["B+1/2"][it][index])
+        self.c["B+1/2"][it][index-1] = self.carry(get("n1",1), get("IDS", 1) | (get("K2") ^ get("n2") ^ get("K4") ^self.ID[index] ^self.c["B+1/1"][it][index]), self.c["B+1/2"][it][index])
         self.c["C+1/1"][it][index-1] = self.carry(get("K3") ^ get("n1"), get("K1") ^ self.ID[index], self.c["C+1/1"][it][index])
         self.c["C+1/2"][it][index-1] = self.carry(get("IDS", 1), get("K3") ^ get("n1") ^ get("K1") ^ self.ID[index] ^ self.c["C+1/1"][it][index], self.c["C+1/2"][it][index]) 
-        self.c["C+1/3"][it][index-1] = self.carry(n22, get("IDS", 1) ^ get("K3") ^ get("n1") ^ get("K1") ^ self.ID[index] ^ self.c["C+1/1"][it][index] ^ self.c["C+1/2"][it][index], self.c["C+1/3"][it][index])
+        self.c["C+1/3"][it][index-1] = self.carry(get("n2",1), get("IDS", 1) ^ get("K3") ^ get("n1") ^ get("K1") ^ self.ID[index] ^ self.c["C+1/1"][it][index] ^ self.c["C+1/2"][it][index], self.c["C+1/3"][it][index])
         self.c["D+1"][it][index-1] = self.carry(get("IDS", 1), self.ID[index], self.c["D+1"][it][index])
         self.c["C/1"][it][index-1] = self.carry(get("IDS"), get("K3"), self.c["C/1"][it][index])
         self.c["C/2"][it][index-1] = self.carry(get("n2"), get("IDS") ^ get("K3") ^ self.c["C/1"][it][index], self.c["C/2"][it][index])
         self.c["D"][it][index-1] = self.carry(get("IDS"), self.ID[index], self.c["D"][it][index])
         self.c["K2aux"][it][index-1] = self.carry(get("K4") ^ get("n1"), get("K2") ^ self.ID[index], self.c["K2aux"][it][index])
-        self.c["K2/2"][it][index-1] = self.carry(get("IDS+1"), n22 ^ get("K4") ^ get("n1") ^ get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
+        self.c["K2/2"][it][index-1] = self.carry(get("IDS+1"), get("n2", 1) ^ get("K4") ^ get("n1") ^ get("K2") ^ self.ID[index] ^ self.c["K2aux"][it][index], self.c["K2/2"][it][index])
 
+    
+    def carry_of_round(self, limit, it):
+        index = 0
+        while (index<limit):
+            self.set_carry(index, it)
+
+    
     def update_bits(self, index, it):
 
         k1 = self.seen[it]["K1"].int_val() ^ self.seen[it]["n2"].int_val() ^ (self.seen[it]["K3"].int_val() + self.ID.int_val())
@@ -103,18 +113,19 @@ class LmapAttacker:
             auxround["n2"] = BitVector(size=96)
 
         current = 95
-        it = self.where_set[current]
         while(current >= 0):
+            it = self.where_set[current]
             self.get_bits(current, it)
             current = current - 1
             while(self.where_set[current] == it):
                 self.get_bits(current, it)
                 current = current - 1
-            it2 = self.where_set[current]
-            while(it <= it2):
+            it2 = it
+            while(it2 <= len(self.seen)):
                 self.update_bits(current+1, it)
-                it += 1
-            
+                it2 += 1
+        
+
 
         print("Rounds needed: " + len(self.seen))
 
