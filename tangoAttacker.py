@@ -1,7 +1,7 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 import socket, json, sys, statistics
 from BitVector import BitVector
-from approximations import calculate_round_approximations, printer, convertToBitChain, accumulate_current
+from approximations import calculate_approximations, printer
 
 class tangoAttacker:
 
@@ -10,7 +10,6 @@ class tangoAttacker:
         self.socket.bind(("127.0.0.1", 3002))
         self.socket.settimeout(5)
         self.round_aproximations = []
-        self.historic_hamming = []
         self.rounds = 0
         self.ID = BitVector(size = 96, intVal=int(IDtodecode))
 
@@ -18,19 +17,21 @@ class tangoAttacker:
         data, _ = self.socket.recvfrom(10000)
         return data.decode()
 
-    def accumulate_approximations(self):
+    def calculate_stats(self):
         all_rounds = self.round_aproximations
         approximations_results = []
         approx_mean = 0
         approx_std = 0
-        # For every approximation gather all rounds of it accumulate them
-        for current in range(0, 31):
+        # For every approximation gather all rounds of it and calculate mean and std
+        for current in range(0,31):
             values = []
             for round in all_rounds:
-                values.append(convertToBitChain(round[current].int_val()))
-            accum_current = accumulate_current(values)
-            approximations_results.append(self.ID.hamming_distance(BitVector(bitstring=accum_current)))
+                values.append(round[current])
+            approx_mean = statistics.mean(values)
+            approx_std = statistics.pstdev(values)
+            approximations_results.append([approx_mean, approx_std])
         return approximations_results
+
 
     def attack(self, ids):
         db_tmp = {}
@@ -40,27 +41,16 @@ class tangoAttacker:
         db_tmp.update(json.loads(aux))
         aux = self.receive()
         db_tmp.update(json.loads(aux))
+
         db = {}
         for message, value in db_tmp.items():
             db[message] = BitVector(size=96, intVal=value)
-
-
-        current_approx = calculate_round_approximations(db, self.ID)
+        current_approx = calculate_approximations(db, self.ID)
         self.round_aproximations.append(current_approx)
-        results = self.accumulate_approximations()
+        results = self.calculate_stats()
         printer(results, self.rounds)
-        
-        '''
-        means = []
-        for i in range(0, 32):
-            av = 0
-            st = 0
-            temp = []
-            for record in self.historic_hamming: temp.append(record[i])
-            av = statistics.mean(temp)
-            st = statistics.pstdev(temp)
-            means.append(av)
-        '''
+
+
 
 
     def run(self):
